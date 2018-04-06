@@ -127,15 +127,12 @@ def train(batchsize=256, lr=0.01, epoch=20, model=None):
 
 def calculate_grad(model, loss):
 
-
-    grad_all = 0.0
-    for p in model.parameters():
-        grad = 0.0
-        if p.grad is not None:
-            grad = (p.grad.cpu().data.numpy() ** 2).sum()
-        grad_all += grad
-    grad_norm = grad_all ** 0.5
-    return grad_norm.data.numpy()
+    grad_params = torch.autograd.grad(loss, model.parameters(), create_graph=True)
+    grad_norm = 0
+    for grad in grad_params:
+        grad_norm += grad.pow(2).sum()
+    grad_norm = grad_norm.sqrt()
+    return grad_norm
 
 
 def analyze():

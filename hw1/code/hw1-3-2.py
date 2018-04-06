@@ -8,8 +8,6 @@ import torch.optim as optim
 from torch.utils.data import Dataset, DataLoader
 from itertools import count
 from torchvision import datasets, transforms
-import plot
-
 
 class CNN(torch.nn.Module):
     def __init__(self, shallow):
@@ -76,8 +74,7 @@ def to_var(x):
 
 def main():
     fw = open('1-3-2.csv', 'a')
-    plot_tool = plot.Plot()
-
+    fw.write('params,accuracy\n')
     model = CNN(False)
     print(model)
     optimizer = optim.SGD(model.parameters(), lr=0.01)
@@ -108,7 +105,6 @@ def main():
             correct += (predicted == labels).sum()
         print('Accuracy of the network on the 10000 test images: %d %%' % (
                 100 * correct / total))
-        plot_tool.add(epoch+1, np.average(losses))
     correct = 0
     total = 0
     for data in test_loader:

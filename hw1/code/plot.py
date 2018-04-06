@@ -24,36 +24,8 @@ class Plot():
         plt.legend([dot1, dot2], ['shallow', 'deep'])
         plt.show()
 
-def test():
-    x = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
-    y = [2.114, 1.8875, 1.8194, 1.7945, 1.7771, 1.7525, 1.736, 1.7241, 1.6981, 1.6811]
-    y2 = [1.9401, 1.7085, 1.5428, 1.4127, 1.3075, 1.2464, 1.2005, 1.1576, 1.124, 1.0896]
-    # z = [1,1,3]
-    # plt.scatter(x, y, c=np.array(z),s=10)
-    # plt.show()
-    line_x, = plt.plot(x, y, 'ro', label='shallow')
-    line_x2, = plt.plot(x, y2, 'go', label='deep')
-    plt.xticks(np.arange(1, 11, 1.0))
-    plt.yticks(np.arange(0.8, 2.2, 0.1))
-    plt.legend([line_x, line_x2], ['shallow', 'deep'])
-    plt.xlabel('epoch')
-    plt.ylabel('loss')
-    plt.title('CIFAR10')
-    plt.show()
-
-def test2():
-    fig, ax = plt.subplots()
-    x = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
-    y = [2.114, 1.8875, 1.8194, 1.7945, 1.7771, 1.7525, 1.736, 1.7241, 1.6981, 1.6811]
-    y2 = [1.9401, 1.7085, 1.5428, 1.4127, 1.3075, 1.2464, 1.2005, 1.1576, 1.124, 1.0896]
-    #line, = ax.plot(x, y, lw=2)
-    ax.scatter(x,y)
-    for i, txt in enumerate(y2):
-        ax.annotate(txt, (x[i], y[i]))
-    plt.show()
-
 def hw1_3_1():
-    data = pd.read_csv('/Users/Yang/Documents/junior/MLDS/hw1/1-3-1.csv')
+    data = pd.read_csv('hw1-3-1.csv')
     #print(data)
     epoch = data['epoch'].get_values()
     train_l = data['train_loss'].get_values()
@@ -67,7 +39,7 @@ def hw1_3_1():
     plt.show()
 
 def hw1_3_2():
-    data = pd.read_csv('~/Documents/junior/MLDS/hw1/hw1-3-2.csv')
+    data = pd.read_csv('hw1-3-2.csv')
     data = data.sort_values(by=['params'])
     print(data)
     params = np.array(data['params'].get_values())
@@ -95,7 +67,7 @@ def hw1_3_2():
     plt.show()
 
 def hw1_3_3_1():
-    data = pd.read_csv('1-3-3-1.csv')
+    data = pd.read_csv('hw1-3-3-1.csv')
     alpha = data['alpha'].values
     train_accuracy = data['train_accuracy'].values
     train_loss = data['train_loss'].values
@@ -154,7 +126,15 @@ def hw1_3_3_2():
     plt.show()
 
 def main():
-    hw1_3_3_2()
+    cmd = sys.argv[1]
+    if cmd == '1_3_1':
+        hw1_3_1()
+    elif cmd == '1_3_2':
+        hw1_3_2()
+    elif cmd == '1_3_3_1':
+        hw1_3_3_1()
+    elif cmd == '1_3_3_2':
+        hw1_3_3_2()
 
 if __name__ == '__main__':
     main()

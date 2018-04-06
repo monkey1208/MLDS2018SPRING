@@ -107,11 +107,17 @@ def train(batchsize=256, lr=0.01):
 def main():
 
     model64 = train(64)
-    #model1024 = train(1024)
+    model1024 = train(1024)
+    model1024 = train(5120)
+    model1024 = train(10240)
+    model1024 = train(20480)
     #torch.save(model64.state_dict(), 'model/hw1-3-3-2-64.pt')
     #torch.save(model1024.state_dict(), 'model/hw1-3-3-2-1024.pt')
-    torch.save(model64.state_dict(), 'model/mnist/hw1-3-3-2-64.pt')
-    #torch.save(model1024.state_dict(), 'model/mnist/hw1-3-3-2-1024.pt')
+    torch.save(model64.state_dict(), 'model/hw1-3-3-2-64.pt')
+    torch.save(model1024.state_dict(), 'model/hw1-3-3-2-1024.pt')
+    torch.save(model5120.state_dict(), 'model/hw1-3-3-2-1024.pt')
+    torch.save(model10240.state_dict(), 'model/hw1-3-3-2-1024.pt')
+    torch.save(model20480.state_dict(), 'model/hw1-3-3-2-1024.pt')
 
     '''
     model64 = CNN(True)

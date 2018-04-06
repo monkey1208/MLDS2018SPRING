@@ -73,7 +73,7 @@ def to_var(x):
     return x
 
 def main():
-    fw = open('1-3-2.csv', 'a')
+    fw = open('hw1-3-2.csv', 'w')
     fw.write('params,accuracy\n')
     model = CNN(False)
     print(model)

@@ -37,20 +37,33 @@ class DecoderRNN(nn.Module):
         self.hidden_size = hidden_size
 
         self.embedding = nn.Embedding(output_size, hidden_size)
-        self.gru = nn.GRU(hidden_size, hidden_size)
+        self.gru = nn.GRU(hidden_size, hidden_size, batch_first=True)
         self.out = nn.Linear(hidden_size, output_size)
         self.softmax = nn.LogSoftmax(dim=1)
 
     def forward(self, caption, lengths, hidden):
-
         output = self.embedding(caption)
         packed = pack_padded_sequence(output, lengths, batch_first=True)
-        #output = F.relu(output)
+        # output = F.relu(output)
 
         output, hidden = self.gru(packed, hidden)
         output = self.softmax(self.out(output[0]))
-        #output = self.out(output[0])
+        # output = self.out(output[0])
         return output, hidden, packed[1]
+
+    '''def forward(self, caption, lengths, hidden):
+        ipdb.set_trace()
+        output = self.embedding(caption) # batch_size * max_len * 256
+        packed = pack_padded_sequence(output, lengths, batch_first=True)
+
+        #output = F.relu
+        output, hidden = self.gru(packed, hidden)
+        output, _ = torch.nn.utils.rnn.pad_packed_sequence(output, batch_first=True)
+        output = self.out(output)
+        #output = self.softmax(self.out(output[0]))
+        output = self.softmax(output)
+
+        return output, hidden, packed[1]'''
     '''
     def initHidden(self):
         result = Variable(torch.zeros(1, 80, self.hidden_size))

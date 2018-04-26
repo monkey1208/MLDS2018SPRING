@@ -48,7 +48,7 @@ def main(args):
     print(encoder)
     print(decoder)
 
-criterion = nn.CrossEntropyLoss()
+    criterion = nn.CrossEntropyLoss()
     c = nn.NLLLoss()
     params = list(decoder.parameters()) + list(encoder.parameters())
     optimizer = torch.optim.Adam(params)
@@ -93,10 +93,10 @@ criterion = nn.CrossEntropyLoss()
                 ipdb.set_trace()
 
 
-torch.save(
-           decoder.state_dict(),
-           "decoder_model.pkl"
-           )
+    torch.save(
+               decoder.state_dict(),
+               "decoder_model.pkl"
+               )
     torch.save(
                encoder.state_dict(),
                "encoder_model.pkl"

@@ -1,37 +1,40 @@
 import torch
 import torch.utils.data as data
+import numpy as np
 class Dataset(data.Dataset):
     def __init__(self, images, labels):
         self.labels = labels
         self.images = images
-        '''
-        ids = []
-        captions = []
-        images = []
-        for label in self.labels:
-            id = label['id']
-            caption = self.rng.choice(label['caption'])
-            #image = np.load(os.path.join(root, '{}.npy'.format(id)))
-            ids.append(id)
-            captions.append(caption)
-            images.append(image)
-        '''
 
     def __getitem__(self, index):
         """Returns one data pair (image and caption)."""
         caption = self.labels[index]
         image = self.images[index]
-
         # Convert caption (string) to word ids.
-        '''
-        tokens = caption.lower().strip('.').split()
-        caption = []
-        caption.append(vocab('<start>'))
-        caption.extend([vocab(token) for token in tokens])
-        caption.append(vocab('<end>'))
-        '''
         target = torch.Tensor(caption)
+        return image, target
 
+    def __len__(self):
+        return len(self.labels)
+
+class DatasetMultilabel(data.Dataset):
+    def __init__(self, images, labels):
+        lab = []
+        self.label2image = []
+        for video in range(len(labels)):
+            for label in labels[video]:
+                lab.append(label)
+                self.label2image.append(video)
+        self.labels = np.array(lab)
+        #self.labels = labels
+        self.images = images
+
+    def __getitem__(self, index):
+        """Returns one data pair (image and caption)."""
+        caption = self.labels[index]
+        image = self.images[self.label2image[index]]
+        # Convert caption (string) to word ids.
+        target = torch.Tensor(caption)
         return image, target
 
     def __len__(self):

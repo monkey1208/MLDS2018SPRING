@@ -5,7 +5,6 @@ import torch
 import torch.nn as nn
 from torch.autograd import Variable
 import torch.utils.data as Data
-from masked_cross_entropy import masked_cross_entropy
 from torch.nn.utils.rnn import pad_packed_sequence
 
 from torch.nn.utils.rnn import pack_padded_sequence
@@ -24,7 +23,7 @@ def main(args):
     fout = open(args.output, 'w')
     maxlen = 25
     num_layers = 4
-    features, ids = preprocess.readfeat(False)
+    features, ids = preprocess.readfeat(False, data_dir=args.data)
     v = preprocess.load_obj('vocabindex')
     v_size = len(v)
     print('feature shape =', features.shape)
@@ -89,5 +88,6 @@ if __name__ == "__main__":
     parser.add_argument("--encoder", type=str, required=True, help='encoder model')
     parser.add_argument("--decoder", type=str, required=True, help='decoder model')
     parser.add_argument("--output", type=str, required=True, help='output file')
+    parser.add_argument("--data", type=str, required=True, help='data directory')
     args = parser.parse_args()
     main(args)

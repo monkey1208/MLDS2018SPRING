@@ -19,13 +19,16 @@ def checkconfig():
     #os.chdir(cfg['path'])
     return cfg['path']
 
-def readfeat(train=True):
-    path = checkconfig()
+def readfeat(train=True, data_dir=None):
+    if data_dir == None:
+        path = checkconfig()
+    else:
+        path = data_dir
     data = []
     features = []
     ids = []
     idpath = 'training_id.txt' if train else 'testing_id.txt'
-    with open(path+'/MLDS_hw2_1_data/'+idpath, 'r') as f:
+    with open(path+'/'+idpath, 'r') as f:
         for line in f:
             video = line.strip('\n')
             ids.append(video)
@@ -34,7 +37,7 @@ def readfeat(train=True):
     i = 0
     for d in data:
         i += 1
-        feat = np.load(path+'/MLDS_hw2_1_data/'+featurepath+'/feat/'+d)
+        feat = np.load(path+'/'+featurepath+'/feat/'+d)
         features.append(feat)
         #print("\rprocessing features {0:.2f}%...  \r".format((i*100)/1450 , end="", flush=True))
         if train:
@@ -44,10 +47,13 @@ def readfeat(train=True):
     print('')
     return np.array(features), ids
 
-def readlabel():
-    path = checkconfig()
+def readlabel(data_dir=None):
+    if data_dir == None:
+        path = checkconfig()
+    else:
+        path = data_dir
     labels = []
-    with open(path+'/MLDS_hw2_1_data/training_label.json', 'r') as f:
+    with open(path+'/training_label.json', 'r') as f:
         text = f.read()
         l = json.loads(text.replace('\n',''))
     for label in l:

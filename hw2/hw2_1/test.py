@@ -11,8 +11,6 @@ from torch.nn.utils.rnn import pack_padded_sequence
 import random
 import preprocess
 from model import EncoderRNN, DecoderRNN, VanillaDecoderRNN, BAttnDecoderRNN
-import ipdb
-from tqdm import tqdm
 
 def to_var(x, volatile=False):
     if torch.cuda.is_available():

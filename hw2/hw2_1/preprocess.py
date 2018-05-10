@@ -37,7 +37,7 @@ def readfeat(train=True, data_dir=None):
     i = 0
     for d in data:
         i += 1
-        feat = np.load(path+'/'+featurepath+'/feat/'+d)
+        feat = np.load(path+'/feat/'+d)
         features.append(feat)
         #print("\rprocessing features {0:.2f}%...  \r".format((i*100)/1450 , end="", flush=True))
         if train:

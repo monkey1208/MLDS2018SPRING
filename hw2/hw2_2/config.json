@@ -1,0 +1,8 @@
+{
+	"path":"/4t/ylc/MLDS/",
+	"schedule_sampling_ratio":0.4,
+	"num_layers":1,
+	"dim":512,
+	"learning_rate":0.2,
+	"bidirectional":0
+}

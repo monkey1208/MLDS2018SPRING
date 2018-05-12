@@ -10,7 +10,6 @@ from torch.nn.utils.rnn import pad_packed_sequence
 from torch.nn.utils.rnn import pack_padded_sequence
 import preprocess
 from model import EncoderRNN, DecoderRNN, VanillaDecoderRNN, BAttnDecoderRNN, LAttnDecoderRNN
-import ipdb
 import dataloader
 from gensim.models import word2vec
 from gensim import models

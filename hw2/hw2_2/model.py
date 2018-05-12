@@ -3,7 +3,6 @@ import torch
 import torch.nn.functional as F
 from torch.autograd import Variable
 from torch.nn.utils.rnn import pack_padded_sequence
-import ipdb
 class EncoderRNN(nn.Module):
     def __init__(self, vocab_size, hidden_size, pretrained_w2v, num_layers=1, bidirectional=False):
         super(EncoderRNN, self).__init__()

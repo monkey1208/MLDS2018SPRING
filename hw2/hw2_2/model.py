@@ -5,13 +5,17 @@ from torch.autograd import Variable
 from torch.nn.utils.rnn import pack_padded_sequence
 import ipdb
 class EncoderRNN(nn.Module):
-    def __init__(self, vocab_size, hidden_size, num_layers=1, bidirectional=False):
+    def __init__(self, vocab_size, hidden_size, pretrained_w2v, num_layers=1, bidirectional=False):
         super(EncoderRNN, self).__init__()
         self.hidden_size = hidden_size
+        self.embed_size = pretrained_w2v.shape[1]
         self.bidirectional = bidirectional
         #self.embedding = nn.Embedding(input_size, hidden_size)
-        self.embedding = nn.Embedding(vocab_size, hidden_size)
-        self.gru = nn.GRU(hidden_size, hidden_size, num_layers, batch_first=True, bidirectional=bidirectional) 
+        self.embedding = nn.Embedding(vocab_size, self.embed_size)
+        self.embedding.weight.data.copy_(torch.Tensor(pretrained_w2v))
+        self.embedding.weight.requires_grad = False
+        #self.embedding = nn.Linear(vocab_size, hidden_size)
+        self.gru = nn.GRU(self.embed_size, hidden_size, num_layers, batch_first=True, bidirectional=bidirectional) 
 
     def forward(self, input, lengths, hidden):
         batch_size = input.size(0)
@@ -25,8 +29,6 @@ class EncoderRNN(nn.Module):
             output = (output[:, :self.hidden_size] + output[:, self.hidden_size:])
         return output, hidden
     def initHidden(self, num_layers, batch_size):
-        if self.bidirectional:
-            num_layers = num_layers * 2
         if torch.cuda.is_available():
             return torch.zeros(num_layers, batch_size, self.hidden_size).cuda()
         return torch.zeros(num_layers, batch_size, self.hidden_size)
@@ -162,7 +164,7 @@ class BAttnDecoderRNN(nn.Module):
         # Return final output, hidden state
         return output, hidden
 class LAttnDecoderRNN(nn.Module):
-    def __init__(self, hidden_size, vocab_size, method='general', num_layers=1, dropout=0.1):
+    def __init__(self, hidden_size, vocab_size, pretrained_w2v, method='general', num_layers=1, dropout=0.1):
         super(LAttnDecoderRNN, self).__init__()
 
         # Keep for reference
@@ -171,10 +173,15 @@ class LAttnDecoderRNN(nn.Module):
         self.vocab_size = vocab_size
         self.num_layers = num_layers
         self.dropout = dropout
+        self.embed_size = pretrained_w2v.shape[1]
         # Define layers
-        self.embedding = nn.Embedding(vocab_size, hidden_size)
-        self.embedding_dropout = nn.Dropout(dropout)
-        self.gru = nn.GRU(hidden_size, hidden_size, num_layers, batch_first=True, dropout=dropout)
+        #self.embedding = nn.Embedding(vocab_size, hidden_size)
+        #self.embedding_dropout = nn.Dropout(dropout)
+
+        self.embedding = nn.Embedding(vocab_size, self.embed_size)
+        self.embedding.weight.data.copy_(torch.Tensor(pretrained_w2v))
+        self.embedding.weight.requires_grad = False
+        self.gru = nn.GRU(self.embed_size, hidden_size, num_layers, batch_first=True, dropout=dropout)
         self.concat = nn.Linear(hidden_size * 2, hidden_size)
         self.out = nn.Linear(hidden_size, vocab_size)
 
@@ -184,7 +191,7 @@ class LAttnDecoderRNN(nn.Module):
         # Get the embedding of the current input word (last output word)
         batch_size = input_seq.size(0)
         embedded = self.embedding(input_seq)
-        embedded = self.embedding_dropout(embedded)
+        #embedded = self.embedding_dropout(embedded)
         embedded = embedded.view(batch_size, 1, -1)  # B x 1 x N
 
         # Get current hidden state from input word and last hidden state

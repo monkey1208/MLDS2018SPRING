@@ -5,15 +5,17 @@ import torch.nn as nn
 from torch.autograd import Variable
 import torch.utils.data as Data
 from torch.nn.utils.rnn import pad_packed_sequence
-
 from torch.nn.utils.rnn import pack_padded_sequence
 import random
 import json
 import sys
 import preprocess
 from model import EncoderRNN, DecoderRNN, VanillaDecoderRNN, BAttnDecoderRNN, LAttnDecoderRNN
+import ipdb
 from tqdm import tqdm
 import dataloader
+from gensim.models import word2vec
+from gensim import models
 
 def readconfig(path):
     with open(path, 'r') as f:
@@ -41,6 +43,21 @@ def index2sentence(s):
     for w in s:
         print(v[w.item()], end=' ')
 
+def getwv():
+    i2v = preprocess.load_obj('index2vocab')
+    model = models.Word2Vec.load('w2v200.model.bin')
+    embedding = np.zeros((len(i2v), model.wv.vector_size))
+    j = 0
+    for i in range(len(i2v)):
+        try:
+            embedding[i] = model.wv[i2v[i]]
+        except:
+            print(i2v[i], 'not in w2v')
+            j += 1
+            continue
+    print(j)
+    return embedding
+
 def main(args):
     cfg = readconfig(args.config)
     teacher_forcing_ratio = 0.5
@@ -50,13 +67,16 @@ def main(args):
     bidirectional = cfg['bidirectional']
     lr = cfg['learning_rate']
     labels, v_size = preprocess.label2onehot('/4t/ylc/MLDS/hw2_2/clr_conversation.txt')
+    labels_2, v_size = preprocess.label2onehot('/4t/ylc/MLDS/hw2_2/test_input.txt')
     labels = np.concatenate((labels, labels_2))
     print('label shape =', labels.shape)
     dataloader = getDataLoader(labels, batch_size=50)
-    encoder = EncoderRNN(v_size, dim, num_layers=num_layers, bidirectional=bidirectional)
+    we = getwv()
+    encoder = EncoderRNN(v_size, dim, we, num_layers=num_layers, bidirectional=bidirectional)
     #decoder = VanillaDecoderRNN(dim, v_size, num_layers=num_layers)
     #decoder = BAttnDecoderRNN(dim, v_size, num_layers=num_layers)
-    decoder = LAttnDecoderRNN(dim, v_size, num_layers=num_layers)
+    decoder = LAttnDecoderRNN(dim, v_size, we,  num_layers=num_layers)
+    we = None
     if torch.cuda.is_available():
         encoder.cuda()
         decoder.cuda()
@@ -67,8 +87,10 @@ def main(args):
     print(encoder)
     print(decoder)
     c = nn.CrossEntropyLoss()
-    params = list(decoder.parameters()) + list(encoder.parameters())
-    optimizer = torch.optim.SGD(params, lr=lr)
+    #params = list(decoder.parameters()) + list(encoder.parameters())
+    params = list(filter(lambda p: p.requires_grad, decoder.parameters()))+list(filter(lambda p: p.requires_grad, encoder.parameters()))
+    #optimizer = torch.optim.SGD(params, lr=lr)
+    optimizer = torch.optim.Adam(params, lr=lr)
     epochs = args.epochs
     for epoch in range(args.start_epoch, epochs):
         it = 0

@@ -10,6 +10,11 @@ import cv2
 from tqdm import tqdm
 from model import GeneratorNet, DiscriminatorNet
 
+def set_requires_grad(net, switch):
+    for param in net.parameters():
+        param.requires_grad = switch
+    return
+
 def to_var(x, requires_grad=True):
     if torch.cuda.is_available():
         x = x.cuda()
@@ -27,6 +32,7 @@ def dcgan_train(data_loader, generator, discriminator, optimizer_G, optimizer_D,
             fake_label = to_var(Tensor(batch_size, 1).fill_(0.0), requires_grad=False)
 
             # Create Fake Image
+            set_requires_grad(discriminator, False)
             noise = to_var(Tensor(np.random.normal(0, 1, (batch_size, opts.latent_size))))
             im_fake = generator(noise)
             g_loss = criterion(discriminator(im_fake), valid_label)
@@ -35,6 +41,7 @@ def dcgan_train(data_loader, generator, discriminator, optimizer_G, optimizer_D,
             optimizer_G.step()
 
             # Discriminate Valid Image
+            set_requires_grad(discriminator, True)
             im_valid = to_var(im[0])
             valid_loss = criterion(discriminator(im_valid), valid_label)
             #print('valid_loss = {}'.format(valid_loss))
@@ -52,10 +59,10 @@ def dcgan_train(data_loader, generator, discriminator, optimizer_G, optimizer_D,
                 cv2.imwrite('iter{}.jpg'.format(i), im_fake_output)
 
 def compute_gradient_penalty(D, real_samples, fake_samples):
-    """Calculates the gradient penalty loss for WGAN GP"""
     # Random weight term for interpolation between real and fake samples
     Tensor = torch.FloatTensor
-
+    if torch.cuda.is_available():
+        Tensor = torch.cuda.FloatTensor
     alpha = Tensor(np.random.random((real_samples.size(0), 1, 1, 1)))
     # Get random interpolation between real and fake samples
     interpolates = (alpha * real_samples + ((1 - alpha) * fake_samples)).requires_grad_(True)
@@ -68,7 +75,7 @@ def compute_gradient_penalty(D, real_samples, fake_samples):
     gradient_penalty = ((gradients.norm(2, dim=1) - 1) ** 2).mean()
     return gradient_penalty
 
-def wgan_train(data_loader, generator, discriminator, optimizer_G, optimizer_D, epoch, clip_val=0.01, LAMBDA=10, use_GP=False):
+def wgan_train(data_loader, generator, discriminator, optimizer_G, optimizer_D, epoch, clip_val=0.01, LAMBDA=0.1, use_GP=False):
     Tensor = torch.FloatTensor
     for e in range(epoch):
         desc = 'Epoch {}'.format(e)
@@ -79,10 +86,13 @@ def wgan_train(data_loader, generator, discriminator, optimizer_G, optimizer_D, 
             im_valid = to_var(im[0])
 
             noise = to_var(Tensor(np.random.normal(0, 1, (batch_size, opts.latent_size))))
+            set_requires_grad(discriminator, False)
             im_fake = generator(noise)
             g_loss = -torch.mean(discriminator(im_fake))
             g_loss.backward()
             optimizer_G.step()
+
+            set_requires_grad(discriminator, True)
             if use_GP:
                 gradient_penalty = compute_gradient_penalty(discriminator, im_valid.data, im_fake.data)
                 d_loss = -torch.mean(discriminator(im_valid)) + torch.mean(discriminator(im_fake.detach())) + LAMBDA * gradient_penalty

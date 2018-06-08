@@ -123,7 +123,7 @@ tag_t = to_var(torch.LongTensor(tag_t), requires_grad = False)
 Tensor = torch.FloatTensor
 #noise = torch.randn(25,100)
 #noise = np.random.normal(0, 1, (25, 100))
-noise = np.load("noise.npy")
+noise = np.load("hw3_2/noise.npy")
 #np.save("noise.npy", noise)
 noise = to_var(Tensor(noise))
 

@@ -6,7 +6,6 @@ from torch.autograd import Variable
 from model import Generator, Discriminator
 import numpy as np
 import cv2
-import ipdb
 import matplotlib.pyplot as plt
 import argparse
 parser = argparse.ArgumentParser()
@@ -100,7 +99,6 @@ while True:
     if line == "":
         break
     idx, features = line.split(",")
-    #ipdb.set_trace()
     feature = features.strip('\n')
     if flag == 0:
         pair_np[pair[feature]] = 1
@@ -141,7 +139,6 @@ gen_imgs = np.array(gen_imgs)
 r,c = 5,5
 cnt = 0
 fig, axs = plt.subplots(r, c)
-#ipdb.set_trace()
 gen_imgs /= 256
 for i in range(r):
     for j in range(c):

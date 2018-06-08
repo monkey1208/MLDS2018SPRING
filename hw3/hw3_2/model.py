@@ -2,7 +2,6 @@ import torch.nn as nn
 import torch
 import torch.nn.functional as F
 from torch.autograd import Variable
-import ipdb
 
 
 class Generator(nn.Module):
@@ -84,7 +83,6 @@ class Discriminator(nn.Module):
         feat = F.relu(feat)
         out = self.net(image)
         feat = feat.repeat(out.size(2), out.size(3), 1, 1).permute(2, 3, 0, 1)
-        #ipdb.set_trace()
         out = torch.cat((out, feat), 1)
         out = self.net_2(out)
         out = out.view(batch_size, -1)

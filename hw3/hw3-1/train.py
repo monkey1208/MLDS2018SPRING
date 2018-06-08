@@ -9,7 +9,6 @@ import argparse
 import cv2
 from tqdm import tqdm
 from model import GeneratorNet, DiscriminatorNet
-import ipdb
 
 def set_requires_grad(net, switch):
     for param in net.parameters():

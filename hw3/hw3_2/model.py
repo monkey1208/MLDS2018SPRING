@@ -32,9 +32,10 @@ class Generator(nn.Module):
         )
 
     def forward(self, inputs, tags):
-        feat = self.embedding(tags)
+        batch_size = tags.size(0)
+        feat = self.embedding(tags).view(batch_size, -1)
         feat = F.relu(feat)
-        latent = torch.cat([inputs, feat], 1)
+        latent = torch.cat((inputs, feat), 1)
         out = self.dense(latent)
         out = out.view(inputs.size(0), 128, 16, 16)
         out = self.net(out)
@@ -79,12 +80,12 @@ class Discriminator(nn.Module):
 
     def forward(self, image, tags):
         batch_size = image.size(0)
-        feat = self.embedding(tags)
+        feat = self.embedding(tags).view(batch_size, -1)
         feat = F.relu(feat)
         out = self.net(image)
         feat = feat.repeat(out.size(2), out.size(3), 1, 1).permute(2, 3, 0, 1)
-        # ipdb.set_trace()
-        out = torch.cat([out, feat], 1)
+        #ipdb.set_trace()
+        out = torch.cat((out, feat), 1)
         out = self.net_2(out)
         out = out.view(batch_size, -1)
         out = self.dense(out)

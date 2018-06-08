@@ -62,5 +62,5 @@ for i in range(r):
         axs[i,j].imshow(gen_imgs[cnt, :,:,:])
         axs[i,j].axis('off')
         cnt += 1
-fig.savefig("gan.png")
+fig.savefig(args.output+"/gan.png")
 plt.close()
